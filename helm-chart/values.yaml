@@ -14,11 +14,6 @@ service:
 
 containerPort: 8080
 
-ingress:
-  host: calculator.mrfinancialfreedom.com
-  clusterIssuer: letsencrypt-production
-  tlsSecretName: calculator-mrfinancialfreedom-com-tls
-
 probes:
   liveness:
     path: /healthz
