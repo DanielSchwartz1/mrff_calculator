@@ -1,0 +1,36 @@
+name: Build and Push to Harbor
+
+on:
+  push:
+    branches: [ main ]
+    tags: [ '*.*.*' ]
+
+# Least privilege for the workflow token
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Login to Harbor
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ secrets.HARBOR_URL }}
+          username: ${{ secrets.HARBOR_USER }}
+          password: ${{ secrets.HARBOR_PASSWORD }}
+
+      # No legal-docs step: Impressum / Privacy Policy / Disclaimer are linked
+      # from the main WordPress site (mrfinancialfreedom.com) in the page footer.
+
+      - name: Build and Push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ secrets.HARBOR_URL }}/private/mrff-calculator:dev
+            ${{ secrets.HARBOR_URL }}/private/mrff-calculator:${{ github.sha }}

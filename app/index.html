@@ -1,0 +1,524 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Defense in depth. The full nonce-based CSP is sent as an HTTP header by nginx (k8s/nginx.conf). -->
+  <meta http-equiv="Content-Security-Policy" content="object-src 'none'; base-uri 'none'; form-action 'none'">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <title>4% Rule Calculator – How Much Do You Need to Retire? | Mr. Financial Freedom</title>
+  <meta name="description" content="Free 4% rule calculator. Enter your monthly expenses and instantly see your Happiness Number – the amount you need to retire and live off your investments.">
+  <link rel="canonical" href="https://calculator.mrfinancialfreedom.com/">
+  <meta property="og:title" content="4% Rule Calculator – What Is Your Happiness Number?">
+  <meta property="og:description" content="Monthly expenses × 12 × 25. Find out how much you really need to retire – live, no signup.">
+  <meta property="og:url" content="https://calculator.mrfinancialfreedom.com/">
+  <meta property="og:type" content="website">
+  <meta name="theme-color" content="#0f766e">
+
+  <!-- Google AdSense: replace ca-pub-XXXXXXXXXXXXXXXX with your publisher ID.
+       __CSP_NONCE__ is replaced per request by nginx; leave it as is. -->
+  <script async nonce="__CSP_NONCE__" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script>
+
+  <style>
+    :root {
+      --bg: #f6f7f5;
+      --card: #ffffff;
+      --text: #1c2421;
+      --muted: #5f6b66;
+      --line: #e2e6e3;
+      --grid: #eef1ef;
+      --accent: #0f766e;
+      --accent-soft: #e6f4f1;
+      --input-bg: #fbfcfb;
+      --shadow: 0 1px 2px rgba(0,0,0,.04), 0 8px 24px rgba(0,0,0,.05);
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #111614;
+        --card: #19201d;
+        --text: #e8eeeb;
+        --muted: #9aa8a2;
+        --line: #2a3430;
+        --grid: #222b27;
+        --accent: #2dd4bf;
+        --accent-soft: #15302b;
+        --input-bg: #141a18;
+        --shadow: none;
+      }
+    }
+    * { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font: 16px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+    .wrap { max-width: 760px; margin: 0 auto; padding: 0 16px; }
+
+    /* Ads */
+    .ad { margin: 16px 0; min-height: 100px; text-align: center; }
+    .ad-label {
+      display: block; font-size: 11px; letter-spacing: .08em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 4px;
+    }
+
+    header { padding: 8px 0 4px; }
+    .brand {
+      display: inline-flex; align-items: center; gap: 8px;
+      color: var(--muted); text-decoration: none; font-size: 14px; font-weight: 600;
+    }
+    .brand:hover { color: var(--accent); }
+    h1 { font-size: clamp(26px, 5vw, 36px); line-height: 1.2; margin: 12px 0 8px; letter-spacing: -.01em; }
+    .lead { color: var(--muted); margin: 0 0 20px; max-width: 60ch; }
+
+    .card {
+      background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+      box-shadow: var(--shadow); padding: 20px; margin-bottom: 16px;
+    }
+    .card h2 { font-size: 20px; margin: 0 0 14px; }
+
+    .field { margin-bottom: 18px; }
+    .field:last-child { margin-bottom: 0; }
+    label, .label { display: block; font-weight: 600; margin-bottom: 6px; }
+    .hint { display: block; font-weight: 400; font-size: 13px; color: var(--muted); }
+
+    .input-row { display: flex; align-items: stretch; }
+    .prefix {
+      display: flex; align-items: center; padding: 0 12px;
+      border: 1px solid var(--line); border-right: 0; border-radius: 10px 0 0 10px;
+      background: var(--accent-soft); color: var(--accent); font-weight: 700;
+    }
+    input[type=number] {
+      width: 100%; min-width: 0; font: inherit; font-size: 20px; font-weight: 600;
+      padding: 10px 12px; border: 1px solid var(--line); border-radius: 0 10px 10px 0;
+      background: var(--input-bg); color: var(--text);
+    }
+    input[type=number]:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+
+    .rate-head { display: flex; justify-content: space-between; align-items: baseline; }
+    .rate-value { font-weight: 700; color: var(--accent); font-size: 18px; }
+    input[type=range] { width: 100%; accent-color: var(--accent); margin: 8px 0 0; }
+    .scale { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); }
+
+    .currency { display: flex; gap: 6px; }
+    .currency button {
+      font: inherit; font-weight: 600; cursor: pointer; padding: 6px 14px; border-radius: 999px;
+      border: 1px solid var(--line); background: var(--input-bg); color: var(--text);
+    }
+    .currency button[aria-pressed=true] { background: var(--accent); border-color: var(--accent); color: var(--card); }
+
+    /* Result */
+    .result { text-align: center; background: var(--accent-soft); border-color: transparent; }
+    .result-label { font-size: 14px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+    .result-number {
+      font-size: clamp(36px, 9vw, 56px); font-weight: 800; color: var(--accent);
+      line-height: 1.1; margin: 6px 0 8px; font-variant-numeric: tabular-nums; overflow-wrap: anywhere;
+    }
+    .formula { font-size: 15px; color: var(--muted); font-variant-numeric: tabular-nums; }
+    .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 18px; }
+    .stat { background: var(--card); border-radius: 10px; padding: 10px 8px; }
+    .stat b { display: block; font-size: 18px; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+    .stat span { font-size: 12px; color: var(--muted); }
+    .million { margin-top: 14px; font-weight: 600; }
+
+    .two { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0 14px; }
+
+    .fi-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 16px; align-items: flex-end; margin: 4px 0 8px; }
+    .fi-years { font-size: 24px; font-weight: 800; color: var(--accent); line-height: 1.2; }
+    .progress { height: 10px; border-radius: 999px; background: var(--line); overflow: hidden; margin: 6px 0 4px; }
+    .progress > div { height: 100%; background: var(--accent); width: 0; transition: width .25s ease; }
+
+    /* Chart */
+    .chart { position: relative; margin-top: 16px; }
+    .chart svg { display: block; width: 100%; height: 260px; overflow: visible; touch-action: pan-y; }
+    .chart .grid { stroke: var(--grid); stroke-width: 1; }
+    .chart .axis-text { fill: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+    .chart .area { fill: var(--accent); fill-opacity: .12; }
+    .chart .line { fill: none; stroke: var(--accent); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+    .chart .target { stroke: var(--text); stroke-width: 1.5; stroke-dasharray: 5 4; opacity: .7; }
+    .chart .target-text { fill: var(--text); font-size: 12px; font-weight: 600; }
+    .chart .hit { fill: transparent; cursor: crosshair; }
+    .chart .cross { stroke: var(--muted); stroke-width: 1; }
+    .chart .dot { fill: var(--accent); stroke: var(--card); stroke-width: 2; }
+    .tip {
+      position: absolute; pointer-events: none; z-index: 2;
+      background: var(--card); color: var(--text); border: 1px solid var(--line);
+      border-radius: 8px; padding: 6px 10px; font-size: 13px; line-height: 1.4;
+      box-shadow: 0 4px 16px rgba(0,0,0,.12); white-space: nowrap;
+      transform: translate(-50%, calc(-100% - 12px));
+    }
+    .tip b { display: block; font-variant-numeric: tabular-nums; }
+    .tip span { color: var(--muted); }
+    .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+    .explain p { margin: 0 0 10px; }
+    .explain a, footer a { color: var(--accent); }
+
+    footer { font-size: 13px; color: var(--muted); padding: 8px 0 24px; text-align: center; }
+    footer p { margin: 6px 0; }
+
+    @media (max-width: 600px) {
+      .card { padding: 16px; }
+      .stats, .two { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+
+    <!-- ===== TOP AD ===== -->
+    <div class="ad">
+      <span class="ad-label">Advertisement</span>
+      <ins class="adsbygoogle"
+           style="display:block"
+           data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+           data-ad-slot="1111111111"
+           data-ad-format="auto"
+           data-full-width-responsive="true"></ins>
+    </div>
+
+    <header>
+      <a class="brand" href="https://mrfinancialfreedom.com/">← Mr. Financial Freedom</a>
+      <h1>4% Rule Calculator</h1>
+      <p class="lead">Do you really need 1 million to retire? Enter what you spend per month and see your <strong>Happiness Number</strong> – the amount that lets you live off your investments.</p>
+    </header>
+
+    <main>
+      <section class="card" aria-label="Your inputs">
+        <div class="field">
+          <span class="label" id="curLabel">Currency</span>
+          <div class="currency" role="group" aria-labelledby="curLabel">
+            <button type="button" data-cur="EUR" aria-pressed="true">€</button>
+            <button type="button" data-cur="USD" aria-pressed="false">$</button>
+            <button type="button" data-cur="GBP" aria-pressed="false">£</button>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="monthly">Monthly expenses
+            <span class="hint">Everything – rent, food, insurance, holidays, and yes, the daily coffee.</span>
+          </label>
+          <div class="input-row">
+            <span class="prefix" data-sym>€</span>
+            <input id="monthly" type="number" inputmode="decimal" min="0" max="1000000" step="50" value="3000">
+          </div>
+        </div>
+
+        <div class="field">
+          <div class="rate-head">
+            <label for="rate">Withdrawal rate</label>
+            <span class="rate-value" id="rateOut">4.0%</span>
+          </div>
+          <input id="rate" type="range" min="2.5" max="6" step="0.1" value="4">
+          <div class="scale"><span>2.5% safer</span><span>4% classic</span><span>6% riskier</span></div>
+        </div>
+      </section>
+
+      <section class="card result" aria-live="polite">
+        <div class="result-label">Your Happiness Number</div>
+        <div class="result-number" id="target">€900,000</div>
+        <div class="formula" id="formula">€3,000 × 12 × 25 = €900,000</div>
+
+        <div class="stats">
+          <div class="stat"><b id="annual">€36,000</b><span>yearly expenses</span></div>
+          <div class="stat"><b id="multiple">25×</b><span>your annual spending</span></div>
+          <div class="stat"><b id="withdraw">€36,000</b><span>you may withdraw / year</span></div>
+        </div>
+        <div class="million" id="million"></div>
+      </section>
+
+      <section class="card" aria-labelledby="fiTitle">
+        <h2 id="fiTitle">When can I reach it?</h2>
+        <div class="two">
+          <div class="field">
+            <label for="current">Already invested</label>
+            <div class="input-row">
+              <span class="prefix" data-sym>€</span>
+              <input id="current" type="number" inputmode="decimal" min="0" max="100000000" step="1000" value="50000">
+            </div>
+          </div>
+          <div class="field">
+            <label for="saving">Invested / month</label>
+            <div class="input-row">
+              <span class="prefix" data-sym>€</span>
+              <input id="saving" type="number" inputmode="decimal" min="0" max="1000000" step="50" value="1000">
+            </div>
+          </div>
+          <div class="field">
+            <label for="ret">Yearly return</label>
+            <div class="input-row">
+              <span class="prefix">%</span>
+              <input id="ret" type="number" inputmode="decimal" min="0" max="15" step="0.5" value="5">
+            </div>
+          </div>
+        </div>
+        <span class="hint">Return after inflation – 5% is a common long‑term assumption for a global stock portfolio. All amounts are in today's money.</span>
+
+        <div class="fi-head">
+          <div>
+            <div class="hint">You reach your Happiness Number in</div>
+            <div class="fi-years" id="years">–</div>
+            <div class="hint" id="yearsNote"></div>
+          </div>
+          <div style="min-width:160px;flex:0 1 220px">
+            <div class="hint">Progress today: <strong id="pct">0%</strong></div>
+            <div class="progress"><div id="bar"></div></div>
+          </div>
+        </div>
+
+        <div class="chart" id="chart">
+          <svg id="chartSvg" role="img" aria-labelledby="chartDesc"></svg>
+          <p class="sr-only" id="chartDesc">Portfolio growth over time compared to your Happiness Number.</p>
+          <div class="tip" id="tip" hidden><b id="tipVal"></b><span id="tipYear"></span></div>
+        </div>
+      </section>
+
+      <section class="card explain">
+        <h2>How the 4% rule works</h2>
+        <p>The idea: if you withdraw about 4% of your portfolio each year, your money has historically lasted 25+ years. Turned around, you need <strong>25 times your yearly expenses</strong> invested – because 1 ÷ 25 = 4%.</p>
+        <p><strong>Happiness Number = monthly expenses × 12 × 25.</strong> Spend €3,000 a month and you need €900,000 – not a million. Spend less, and the number drops fast: every €100 you cut per month lowers your goal by €30,000.</p>
+        <p>Read the full article: <a href="https://mrfinancialfreedom.com/do-you-need-1-million-to-retire/">Do You Need 1 Million To Retire?</a></p>
+        <p class="hint">This calculator is for education only and is not financial advice. Past returns do not guarantee future results.</p>
+      </section>
+    </main>
+
+    <!-- ===== BOTTOM AD ===== -->
+    <div class="ad">
+      <span class="ad-label">Advertisement</span>
+      <ins class="adsbygoogle"
+           style="display:block"
+           data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+           data-ad-slot="2222222222"
+           data-ad-format="auto"
+           data-full-width-responsive="true"></ins>
+    </div>
+
+    <footer>
+      <p>© <span id="yr">2026</span> <a href="https://mrfinancialfreedom.com/">Mr. Financial Freedom</a> – Desire to Retire</p>
+      <p>
+        <a href="https://mrfinancialfreedom.com/impressum/">Impressum</a> ·
+        <a href="https://mrfinancialfreedom.com/privacy-policy/">Privacy Policy</a> ·
+        <a href="https://mrfinancialfreedom.com/disclaimer/">Disclaimer</a>
+      </p>
+    </footer>
+  </div>
+
+  <script nonce="__CSP_NONCE__">
+    'use strict';
+    // XSS notes: this script never uses innerHTML, eval or URL parameters.
+    // All output is written with textContent / numeric SVG attributes only.
+
+    document.querySelectorAll('ins.adsbygoogle').forEach(function () {
+      try { (window.adsbygoogle = window.adsbygoogle || []).push({}); } catch (e) {}
+    });
+
+    (function () {
+      var $ = function (id) { return document.getElementById(id); };
+      var SVGNS = 'http://www.w3.org/2000/svg';
+      var LOCALES = { EUR: 'de-DE', USD: 'en-US', GBP: 'en-GB' };
+      var SYMBOLS = { EUR: '€', USD: '$', GBP: '£' };
+      var cur = 'EUR';
+      var thisYear = new Date().getFullYear();
+      var state = null;
+
+      function money(v) {
+        if (!isFinite(v)) return '–';
+        return new Intl.NumberFormat(LOCALES[cur], { style: 'currency', currency: cur, maximumFractionDigits: 0 }).format(Math.round(v));
+      }
+      function moneyShort(v) {
+        return new Intl.NumberFormat(LOCALES[cur], { style: 'currency', currency: cur, notation: 'compact', maximumFractionDigits: 1 }).format(v);
+      }
+      // Read a number input, clamped to [0, max]; anything invalid becomes 0.
+      function num(id) {
+        var el = $(id);
+        var v = parseFloat(el.value);
+        var max = parseFloat(el.max);
+        if (!isFinite(v) || v < 0) return 0;
+        return isFinite(max) ? Math.min(v, max) : v;
+      }
+
+      // Monthly compounding; returns months to target (Infinity if > 100 y) and yearly balances.
+      function simulate(start, monthly, yearlyReturn, target) {
+        var r = Math.pow(1 + yearlyReturn / 100, 1 / 12) - 1;
+        var bal = start, hit = start >= target ? 0 : Infinity, pts = [start];
+        for (var m = 1; m <= 1200; m++) {
+          bal = bal * (1 + r) + monthly;
+          if (hit === Infinity && bal >= target) hit = m;
+          if (m % 12 === 0) pts.push(bal);
+        }
+        return { months: hit, points: pts };
+      }
+
+      function update() {
+        var monthly = num('monthly');
+        var rate = parseFloat($('rate').value) || 4;
+        var annual = monthly * 12;
+        var multiple = 100 / rate;
+        var target = annual * multiple;
+        var multTxt = multiple.toFixed(1).replace(/\.0$/, '');
+
+        $('rateOut').textContent = rate.toFixed(1) + '%';
+        $('target').textContent = money(target);
+        $('formula').textContent = money(monthly) + ' × 12 × ' + multTxt + ' = ' + money(target);
+        $('annual').textContent = money(annual);
+        $('multiple').textContent = multTxt + '×';
+        $('withdraw').textContent = money(target * rate / 100);
+
+        var diff = target - 1000000;
+        $('million').textContent = monthly === 0 ? '' :
+          diff < 0 ? 'Good news: that is ' + money(-diff) + ' less than 1 million. 🎉'
+                   : 'That is ' + money(diff) + ' more than 1 million – every expense you cut lowers it.';
+
+        var current = num('current'), saving = num('saving'), ret = num('ret');
+        var pct = target > 0 ? Math.min(100, current / target * 100) : 0;
+        $('pct').textContent = pct.toFixed(pct < 10 ? 1 : 0) + '%';
+        $('bar').style.width = pct + '%';
+
+        var sim = simulate(current, saving, ret, target);
+        var y = sim.months / 12;
+        if (target === 0) {
+          $('years').textContent = '–';
+          $('yearsNote').textContent = 'Enter your monthly expenses above.';
+        } else if (y === 0) {
+          $('years').textContent = 'You are already there!';
+          $('yearsNote').textContent = 'Your investments already cover your expenses.';
+        } else if (!isFinite(y)) {
+          $('years').textContent = 'More than 100 years';
+          $('yearsNote').textContent = 'Try investing more each month or lowering your expenses.';
+        } else {
+          var yrs = Math.floor(sim.months / 12), mos = sim.months % 12;
+          $('years').textContent = yrs + (yrs === 1 ? ' year' : ' years') + (mos ? ' ' + mos + (mos === 1 ? ' month' : ' months') : '');
+          $('yearsNote').textContent = 'Around ' + (thisYear + Math.ceil(y)) + '.';
+        }
+
+        // Chart horizon: a few years past the goal, between 10 and 60 years.
+        var horizon = isFinite(y) ? Math.min(60, Math.max(10, Math.ceil(y) + 5)) : 40;
+        state = { points: sim.points.slice(0, horizon + 1), target: target, hitYears: y };
+        drawChart();
+      }
+
+      // ---------- Chart (plain SVG, no library) ----------
+      function el(name, attrs, parent) {
+        var n = document.createElementNS(SVGNS, name);
+        for (var k in attrs) n.setAttribute(k, attrs[k]);
+        if (parent) parent.appendChild(n);
+        return n;
+      }
+      function niceStep(max, count) {
+        var raw = max / count, mag = Math.pow(10, Math.floor(Math.log10(raw)));
+        var f = raw / mag;
+        return (f <= 1 ? 1 : f <= 2 ? 2 : f <= 2.5 ? 2.5 : f <= 5 ? 5 : 10) * mag;
+      }
+
+      var geo = null;
+      function drawChart() {
+        var svg = $('chartSvg');
+        while (svg.firstChild) svg.removeChild(svg.firstChild);
+        $('tip').hidden = true;
+        if (!state) return;
+
+        var W = svg.clientWidth || 600, H = 260;
+        var m = { t: 16, r: 12, b: 28, l: 58 };
+        var pw = W - m.l - m.r, ph = H - m.t - m.b;
+        svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+
+        var pts = state.points, n = pts.length - 1;
+        var maxV = Math.max(state.target * 1.1, Math.max.apply(null, pts), 1);
+        var step = niceStep(maxV, 4);
+        var yMax = Math.ceil(maxV / step) * step;
+        var x = function (i) { return m.l + (i / n) * pw; };
+        var yv = function (v) { return m.t + ph - (v / yMax) * ph; };
+
+        // grid + y labels
+        for (var v = 0; v <= yMax + 1e-6; v += step) {
+          el('line', { x1: m.l, x2: m.l + pw, y1: yv(v), y2: yv(v), class: 'grid' }, svg);
+          var t = el('text', { x: m.l - 8, y: yv(v) + 4, 'text-anchor': 'end', class: 'axis-text' }, svg);
+          t.textContent = moneyShort(v);
+        }
+        // x labels (calendar years)
+        var xStep = n <= 15 ? 2 : n <= 30 ? 5 : 10;
+        if (W < 420) xStep *= 2;
+        for (var i = 0; i <= n; i += xStep) {
+          var tx = el('text', { x: x(i), y: H - 8, 'text-anchor': 'middle', class: 'axis-text' }, svg);
+          tx.textContent = String(thisYear + i);
+        }
+
+        // area + line
+        var d = '';
+        for (var j = 0; j <= n; j++) d += (j ? 'L' : 'M') + x(j).toFixed(1) + ' ' + yv(pts[j]).toFixed(1);
+        el('path', { d: d + 'L' + x(n) + ' ' + yv(0) + 'L' + x(0) + ' ' + yv(0) + 'Z', class: 'area' }, svg);
+        el('path', { d: d, class: 'line' }, svg);
+
+        // target reference line + direct label
+        if (state.target > 0) {
+          var ty = yv(state.target);
+          el('line', { x1: m.l, x2: m.l + pw, y1: ty, y2: ty, class: 'target' }, svg);
+          var lbl = el('text', { x: m.l + 6, y: ty - 6, class: 'target-text' }, svg);
+          lbl.textContent = 'Happiness Number ' + moneyShort(state.target);
+          if (isFinite(state.hitYears) && state.hitYears > 0 && state.hitYears <= n) {
+            el('circle', { cx: x(state.hitYears), cy: ty, r: 5, class: 'dot' }, svg);
+          }
+        }
+
+        // hover layer
+        var cross = el('line', { y1: m.t, y2: m.t + ph, class: 'cross', visibility: 'hidden' }, svg);
+        var dot = el('circle', { r: 5, class: 'dot', visibility: 'hidden' }, svg);
+        var hit = el('rect', { x: m.l, y: 0, width: pw, height: H, class: 'hit' }, svg);
+        geo = { x: x, yv: yv, n: n, m: m, pw: pw, W: W, cross: cross, dot: dot };
+
+        function move(evt) {
+          var rect = svg.getBoundingClientRect();
+          var px = (evt.clientX - rect.left) * (W / rect.width);
+          var idx = Math.round(((px - m.l) / pw) * n);
+          idx = Math.max(0, Math.min(n, idx));
+          var cx = x(idx), cy = yv(pts[idx]);
+          cross.setAttribute('x1', cx); cross.setAttribute('x2', cx); cross.setAttribute('visibility', 'visible');
+          dot.setAttribute('cx', cx); dot.setAttribute('cy', cy); dot.setAttribute('visibility', 'visible');
+          var tip = $('tip');
+          $('tipVal').textContent = money(pts[idx]);
+          $('tipYear').textContent = (thisYear + idx) + (idx ? ' · in ' + idx + (idx === 1 ? ' year' : ' years') : ' · today');
+          tip.hidden = false;
+          var scale = rect.width / W;
+          var left = Math.max(70, Math.min(rect.width - 70, cx * scale));
+          tip.style.left = left + 'px';
+          tip.style.top = (cy * scale) + 'px';
+        }
+        function leave() {
+          cross.setAttribute('visibility', 'hidden');
+          dot.setAttribute('visibility', 'hidden');
+          $('tip').hidden = true;
+        }
+        hit.addEventListener('pointermove', move);
+        hit.addEventListener('pointerdown', move);
+        hit.addEventListener('pointerleave', leave);
+
+        $('chartDesc').textContent = 'Line chart: portfolio grows from ' + money(pts[0]) + ' today to ' +
+          money(pts[n]) + ' in ' + (thisYear + n) + '. Happiness Number: ' + money(state.target) + '.';
+      }
+
+      // ---------- Wiring ----------
+      document.querySelectorAll('.currency button').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var c = btn.getAttribute('data-cur');
+          if (!Object.prototype.hasOwnProperty.call(SYMBOLS, c)) return;
+          cur = c;
+          document.querySelectorAll('.currency button').forEach(function (b) {
+            b.setAttribute('aria-pressed', b === btn ? 'true' : 'false');
+          });
+          document.querySelectorAll('[data-sym]').forEach(function (s) { s.textContent = SYMBOLS[cur]; });
+          update();
+        });
+      });
+      ['monthly', 'rate', 'current', 'saving', 'ret'].forEach(function (id) {
+        $(id).addEventListener('input', update);
+      });
+      var rz;
+      window.addEventListener('resize', function () { clearTimeout(rz); rz = setTimeout(drawChart, 100); });
+
+      $('yr').textContent = String(thisYear);
+      update();
+    })();
+  </script>
+</body>
+</html>

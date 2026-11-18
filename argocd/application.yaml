@@ -1,0 +1,33 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: mrff-calculator
+  namespace: argocd
+  annotations:
+    argocd-image-updater.argoproj.io/image-list: calculator=harbor.schwartzdaniel.de/private/mrff-calculator:dev
+    argocd-image-updater.argoproj.io/calculator.helm.image-name: image.repository
+    argocd-image-updater.argoproj.io/calculator.helm.image-tag: image.tag
+    argocd-image-updater.argoproj.io/write-back-method: argocd
+    argocd-image-updater.argoproj.io/calculator.update-strategy: digest
+    argocd-image-updater.argoproj.io/pull-policy: Always
+
+spec:
+  project: default
+  source:
+    # Adjust if the GitHub repo gets a different name
+    repoURL: https://github.com/DanielSchwartz1/mrff-calculator.git
+    targetRevision: HEAD
+    path: helm-chart
+    helm:
+      valueFiles:
+        - values.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    # Shared with personal-website; harbor-pull-secret already exists here.
+    namespace: portfolio-prod
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

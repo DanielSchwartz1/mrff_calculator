@@ -1,0 +1,4 @@
+apiVersion: v2
+name: mrff-calculator
+description: 4% rule calculator (calculator.mrfinancialfreedom.com)
+version: 0.1.0

@@ -1,0 +1,38 @@
+fullname: mrff-calculator
+replicaCount: 2
+image:
+  repository: harbor.schwartzdaniel.de/private/mrff-calculator
+  tag: dev
+  pullPolicy: Always
+
+imagePullSecrets:
+  - name: harbor-pull-secret
+
+service:
+  type: ClusterIP
+  port: 80
+
+containerPort: 8080
+
+ingress:
+  host: calculator.mrfinancialfreedom.com
+  clusterIssuer: letsencrypt-production
+  tlsSecretName: calculator-mrfinancialfreedom-com-tls
+
+probes:
+  liveness:
+    path: /healthz
+    initialDelaySeconds: 5
+    periodSeconds: 60
+  readiness:
+    path: /healthz
+    initialDelaySeconds: 5
+    periodSeconds: 60
+
+resources:
+  limits:
+    cpu: "200m"
+    memory: "64Mi"
+  requests:
+    cpu: "20m"
+    memory: "16Mi"
