@@ -6,6 +6,8 @@ metadata:
   annotations:
     cert-manager.io/cluster-issuer: "letsencrypt-production"
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    # Traefik: <namespace>-<middleware name>@kubernetescrd
+    traefik.ingress.kubernetes.io/router.middlewares: portfolio-prod-mrff-calculator-redirect-https@kubernetescrd
 spec:
   tls:
   - hosts:
