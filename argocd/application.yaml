@@ -15,7 +15,7 @@ spec:
   project: default
   source:
     # Adjust if the GitHub repo gets a different name
-    repoURL: https://github.com/DanielSchwartz1/mrff-calculator.git
+    repoURL: https://github.com/DanielSchwartz1/mrff_calculator.git
     targetRevision: HEAD
     path: helm-chart
     helm:
