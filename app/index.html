@@ -234,7 +234,7 @@
     .cbar { display: block; height: 6px; margin-top: 5px; border-radius: 999px; background: var(--line); overflow: hidden; }
     .cbar > span { display: block; height: 100%; margin-left: auto; background: var(--accent); border-radius: 999px; transition: width .25s ease; }
 
-    /* Buttons, share & embed */
+    /* Buttons & share */
     .btn {
       font: inherit; font-weight: 700; cursor: pointer; min-height: 44px; padding: 8px 18px;
       border-radius: 999px; border: 1px solid var(--accent); background: var(--card); color: var(--accent);
@@ -242,11 +242,6 @@
     .btn:hover { background: var(--accent); color: var(--card); }
     .share-row { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; justify-content: center; margin-top: 14px; }
     .share-status { font-size: 13px; color: var(--muted); }
-    .embed-code {
-      width: 100%; font: 13px/1.45 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-      padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px;
-      background: var(--input-bg); color: var(--text); resize: vertical;
-    }
 
     /* Author box */
     .author { display: flex; gap: 14px; align-items: flex-start; }
@@ -427,17 +422,6 @@
         </table>
         <p>Read the full article: <a href="https://mrfinancialfreedom.com/do-you-need-1-million-to-retire/">Do You Need 1 Million To Retire?</a></p>
         <p class="hint">This calculator is for education only and is not financial advice. Past returns do not guarantee future results.</p>
-      </section>
-
-      <section class="card" aria-labelledby="embedTitle">
-        <h2 id="embedTitle">Embed this calculator on your blog</h2>
-        <p class="hint" style="margin:0 0 10px">Free for any website or blog. Copy the code and paste it into your page (in WordPress: a “Custom HTML” block).</p>
-        <textarea id="embedCode" class="embed-code" readonly rows="5" aria-label="Embed code">&lt;iframe src="https://calculator.mrfinancialfreedom.com/embed.html" title="4% Rule Calculator" width="100%" height="520" style="border:0;max-width:640px" loading="lazy"&gt;&lt;/iframe&gt;
-&lt;p&gt;&lt;a href="https://calculator.mrfinancialfreedom.com/"&gt;4% Rule Calculator&lt;/a&gt; by &lt;a href="https://mrfinancialfreedom.com/"&gt;Mr. Financial Freedom&lt;/a&gt;&lt;/p&gt;</textarea>
-        <div class="share-row" style="justify-content:flex-start">
-          <button type="button" class="btn" id="embedBtn">Copy embed code</button>
-          <span class="share-status" id="embedStatus" role="status"></span>
-        </div>
       </section>
 
       <section class="card" aria-labelledby="authorTitle">
@@ -761,10 +745,6 @@
         } else {
           copyText(url, $('shareStatus'), 'Link copied – paste it anywhere.');
         }
-      });
-      $('embedBtn').addEventListener('click', function () {
-        $('embedCode').select();
-        copyText($('embedCode').value, $('embedStatus'), 'Embed code copied.');
       });
 
       // ---------- Wiring ----------
