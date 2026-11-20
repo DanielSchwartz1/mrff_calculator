@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="object-src 'none'; base-uri 'none'; form-action 'none'">
+  <!-- Embed version for other websites: no ads (AdSense does not allow ads inside iframes on
+       third-party sites), not indexed (the main page is the canonical one). -->
+  <meta name="robots" content="noindex, follow">
+  <link rel="canonical" href="https://calculator.mrfinancialfreedom.com/">
+  <title>4% Rule Calculator – Embed</title>
+  <style>
+    :root {
+      --bg: #ffffff; --text: #1c2421; --muted: #5f6b66; --line: #e2e6e3;
+      --accent: #0f766e; --accent-soft: #e6f4f1; --input-bg: #fbfcfb;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #19201d; --text: #e8eeeb; --muted: #9aa8a2; --line: #2a3430;
+        --accent: #2dd4bf; --accent-soft: #15302b; --input-bg: #141a18;
+      }
+    }
+    * { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; }
+    body {
+      margin: 0; padding: 16px; background: var(--bg); color: var(--text);
+      font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      border: 1px solid var(--line); border-radius: 14px; min-height: 100vh;
+    }
+    h1 { font-size: 18px; margin: 0 0 12px; }
+    .row { display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap; margin-bottom: 12px; }
+    .grow { flex: 1 1 180px; min-width: 0; }
+    label, .label { display: block; font-weight: 600; font-size: 14px; margin-bottom: 4px; }
+    .input-row { display: flex; }
+    .prefix {
+      display: flex; align-items: center; padding: 0 10px; border: 1px solid var(--line); border-right: 0;
+      border-radius: 10px 0 0 10px; background: var(--accent-soft); color: var(--accent); font-weight: 700;
+    }
+    input[type=number] {
+      width: 100%; min-width: 0; font: inherit; font-size: 18px; font-weight: 600; padding: 8px 10px;
+      border: 1px solid var(--line); border-radius: 0 10px 10px 0; background: var(--input-bg); color: var(--text);
+    }
+    input[type=number]:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+    .currency { display: flex; gap: 4px; }
+    .currency button {
+      font: inherit; font-weight: 600; cursor: pointer; min-width: 42px; min-height: 42px; border-radius: 999px;
+      border: 1px solid var(--line); background: var(--input-bg); color: var(--text);
+    }
+    .currency button[aria-pressed=true] { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+    .rate-head { display: flex; justify-content: space-between; }
+    .rate-value { font-weight: 700; color: var(--accent); }
+    input[type=range] { width: 100%; accent-color: var(--accent); margin: 4px 0 0; }
+    .result { text-align: center; background: var(--accent-soft); border-radius: 12px; padding: 12px; margin: 4px 0 12px; }
+    .result-label { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+    .result-number { font-size: 36px; font-weight: 800; color: var(--accent); line-height: 1.15; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+    .formula { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+    table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; font-size: 14px; }
+    td { padding: 6px 2px; border-bottom: 1px solid var(--line); }
+    td:last-child { text-align: right; font-weight: 700; color: var(--accent); }
+    tr.is-current td { background: var(--accent-soft); }
+    .foot { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 4px 12px; margin-top: 12px; font-size: 13px; color: var(--muted); }
+    .foot a { color: var(--accent); font-weight: 600; }
+  </style>
+</head>
+<body>
+  <h1>4% Rule Calculator – Your Happiness Number</h1>
+
+  <div class="row">
+    <div class="grow">
+      <label for="monthly">Monthly expenses</label>
+      <div class="input-row">
+        <span class="prefix" id="sym">€</span>
+        <input id="monthly" type="number" inputmode="decimal" min="0" max="1000000" step="50" value="3000">
+      </div>
+    </div>
+    <div>
+      <span class="label" id="curLabel">Currency</span>
+      <div class="currency" role="group" aria-labelledby="curLabel">
+        <button type="button" data-cur="EUR" aria-pressed="true">€</button>
+        <button type="button" data-cur="USD" aria-pressed="false">$</button>
+        <button type="button" data-cur="GBP" aria-pressed="false">£</button>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-bottom:12px">
+    <div class="rate-head"><label for="rate">Withdrawal rate</label><span class="rate-value" id="rateOut">4.0%</span></div>
+    <input id="rate" type="range" min="2.5" max="6" step="0.1" value="4">
+  </div>
+
+  <div class="result" aria-live="polite">
+    <div class="result-label">You need</div>
+    <div class="result-number" id="target">€900,000</div>
+    <div class="formula" id="formula">€3,000 × 12 × 25 = €900,000</div>
+  </div>
+
+  <table>
+    <tbody id="cmpBody">
+      <tr data-rate="3"><td>3% – very safe</td><td>€1,200,000</td></tr>
+      <tr data-rate="3.5"><td>3.5% – conservative</td><td>€1,028,571</td></tr>
+      <tr data-rate="4" class="is-current"><td>4% – classic rule</td><td>€900,000</td></tr>
+    </tbody>
+  </table>
+
+  <div class="foot">
+    <a id="fullLink" href="https://calculator.mrfinancialfreedom.com/" target="_blank" rel="noopener">Full calculator with chart →</a>
+    <span>by <a href="https://mrfinancialfreedom.com/" target="_blank" rel="noopener">Mr. Financial Freedom</a></span>
+  </div>
+
+  <script nonce="__CSP_NONCE__">
+    'use strict';
+    // Same XSS rules as the main page: textContent only, whitelisted numeric #hash values.
+    (function () {
+      var $ = function (id) { return document.getElementById(id); };
+      var LOCALES = { EUR: 'en-IE', USD: 'en-US', GBP: 'en-GB' };
+      var SYMBOLS = { EUR: '€', USD: '$', GBP: '£' };
+      var cur = 'EUR';
+
+      function money(v) {
+        return new Intl.NumberFormat(LOCALES[cur], { style: 'currency', currency: cur, maximumFractionDigits: 0 }).format(Math.round(v));
+      }
+      function clampInput(input, v) {
+        return Math.min(Math.max(v, parseFloat(input.min)), parseFloat(input.max));
+      }
+      function setCurrency(c) {
+        if (!Object.prototype.hasOwnProperty.call(SYMBOLS, c)) return false;
+        cur = c;
+        $('sym').textContent = SYMBOLS[c];
+        document.querySelectorAll('.currency button').forEach(function (b) {
+          b.setAttribute('aria-pressed', b.getAttribute('data-cur') === c ? 'true' : 'false');
+        });
+        return true;
+      }
+      // Optional: embed.html#cur=USD&m=4000&r=3.5 lets a blogger preset the values.
+      function readHash() {
+        var h = window.location.hash.slice(1);
+        if (!h || h.length > 100) return;
+        h.split('&').forEach(function (pair) {
+          var kv = pair.split('=');
+          if (kv.length !== 2) return;
+          if (kv[0] === 'cur') { setCurrency(kv[1].toUpperCase()); return; }
+          var id = kv[0] === 'm' ? 'monthly' : kv[0] === 'r' ? 'rate' : null;
+          if (!id || !/^\d{1,9}(\.\d{1,2})?$/.test(kv[1])) return;
+          $(id).value = String(clampInput($(id), parseFloat(kv[1])));
+        });
+      }
+
+      function update() {
+        var raw = parseFloat($('monthly').value);
+        var monthly = isFinite(raw) && raw > 0 ? clampInput($('monthly'), raw) : 0;
+        var rate = parseFloat($('rate').value) || 4;
+        var annual = monthly * 12, mult = 100 / rate, target = annual * mult;
+        $('rateOut').textContent = rate.toFixed(1) + '%';
+        $('target').textContent = money(target);
+        $('formula').textContent = money(monthly) + ' × 12 × ' + mult.toFixed(1).replace(/\.0$/, '') + ' = ' + money(target);
+        document.querySelectorAll('#cmpBody tr').forEach(function (row) {
+          var r = parseFloat(row.getAttribute('data-rate'));
+          row.lastElementChild.textContent = money(annual * 100 / r);
+          row.classList.toggle('is-current', Math.abs(r - rate) < 0.05);
+        });
+        // "Full calculator" opens the main page with the same values (hash, never sent to a server)
+        $('fullLink').href = 'https://calculator.mrfinancialfreedom.com/#m=' + monthly + '&r=' + rate + '&cur=' + cur;
+      }
+
+      document.querySelectorAll('.currency button').forEach(function (btn) {
+        btn.addEventListener('click', function () { if (setCurrency(btn.getAttribute('data-cur'))) update(); });
+      });
+      $('monthly').addEventListener('input', update);
+      $('rate').addEventListener('input', update);
+      readHash();
+      update();
+    })();
+  </script>
+</body>
+</html>

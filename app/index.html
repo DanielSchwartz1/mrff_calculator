@@ -230,6 +230,23 @@
     .compare thead th { font-size: 13px; color: var(--muted); font-weight: 600; }
     .compare tbody tr.is-current td { background: var(--accent-soft); font-weight: 700; }
     .compare td b { color: var(--accent); }
+    .compare td small { display: block; font-size: 12px; color: var(--muted); font-weight: 400; }
+    .cbar { display: block; height: 6px; margin-top: 5px; border-radius: 999px; background: var(--line); overflow: hidden; }
+    .cbar > span { display: block; height: 100%; margin-left: auto; background: var(--accent); border-radius: 999px; transition: width .25s ease; }
+
+    /* Buttons, share & embed */
+    .btn {
+      font: inherit; font-weight: 700; cursor: pointer; min-height: 44px; padding: 8px 18px;
+      border-radius: 999px; border: 1px solid var(--accent); background: var(--card); color: var(--accent);
+    }
+    .btn:hover { background: var(--accent); color: var(--card); }
+    .share-row { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; justify-content: center; margin-top: 14px; }
+    .share-status { font-size: 13px; color: var(--muted); }
+    .embed-code {
+      width: 100%; font: 13px/1.45 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px;
+      background: var(--input-bg); color: var(--text); resize: vertical;
+    }
 
     /* Author box */
     .author { display: flex; gap: 14px; align-items: flex-start; }
@@ -318,6 +335,10 @@
           <div class="stat"><b id="withdraw">€36,000</b><span>you may withdraw / year</span></div>
         </div>
         <div class="million" id="million"></div>
+        <div class="share-row">
+          <button type="button" class="btn" id="shareBtn">Share my result</button>
+          <span class="share-status" id="shareStatus" role="status"></span>
+        </div>
       </section>
 
       <section class="card" aria-labelledby="fiTitle">
@@ -381,19 +402,42 @@
 
       <section class="card explain" aria-labelledby="cmpTitle">
         <h2 id="cmpTitle">3% vs 3.5% vs 4%: how much do you need?</h2>
-        <p>The lower the withdrawal rate, the safer – and the bigger the portfolio you need. Many early retirees in Europe plan with 3.5% because their retirement can last much longer than 30 years. Based on your expenses of <strong id="cmpMonthly">€3,000</strong> per month:</p>
+        <p>The lower the withdrawal rate, the safer – and the bigger the portfolio you need. Many early retirees in Europe plan with 3.5% because their retirement can last much longer than 30 years. Based on your expenses of <strong id="cmpMonthly">€3,000</strong> per month and your savings plan above:</p>
         <table class="compare">
           <thead>
-            <tr><th scope="col">Withdrawal rate</th><th scope="col">Multiple</th><th scope="col">You need</th></tr>
+            <tr><th scope="col">Withdrawal rate</th><th scope="col">You need</th><th scope="col">Reached in</th></tr>
           </thead>
           <tbody id="cmpBody">
-            <tr data-rate="3"><td>3% – very safe</td><td>33.3×</td><td><b>€1,200,000</b></td></tr>
-            <tr data-rate="3.5"><td>3.5% – conservative</td><td>28.6×</td><td><b>€1,028,571</b></td></tr>
-            <tr data-rate="4" class="is-current"><td>4% – classic rule</td><td>25×</td><td><b>€900,000</b></td></tr>
+            <tr data-rate="3">
+              <td>3% – very safe<small>33.3× expenses</small></td>
+              <td><b>€1,200,000</b><span class="cbar"><span style="width:100%"></span></span></td>
+              <td>32.6 yrs</td>
+            </tr>
+            <tr data-rate="3.5">
+              <td>3.5% – conservative<small>28.6× expenses</small></td>
+              <td><b>€1,028,571</b><span class="cbar"><span style="width:86%"></span></span></td>
+              <td>30 yrs</td>
+            </tr>
+            <tr data-rate="4" class="is-current">
+              <td>4% – classic rule<small>25× expenses</small></td>
+              <td><b>€900,000</b><span class="cbar"><span style="width:75%"></span></span></td>
+              <td>27.8 yrs</td>
+            </tr>
           </tbody>
         </table>
         <p>Read the full article: <a href="https://mrfinancialfreedom.com/do-you-need-1-million-to-retire/">Do You Need 1 Million To Retire?</a></p>
         <p class="hint">This calculator is for education only and is not financial advice. Past returns do not guarantee future results.</p>
+      </section>
+
+      <section class="card" aria-labelledby="embedTitle">
+        <h2 id="embedTitle">Embed this calculator on your blog</h2>
+        <p class="hint" style="margin:0 0 10px">Free for any website or blog. Copy the code and paste it into your page (in WordPress: a “Custom HTML” block).</p>
+        <textarea id="embedCode" class="embed-code" readonly rows="5" aria-label="Embed code">&lt;iframe src="https://calculator.mrfinancialfreedom.com/embed.html" title="4% Rule Calculator" width="100%" height="520" style="border:0;max-width:640px" loading="lazy"&gt;&lt;/iframe&gt;
+&lt;p&gt;&lt;a href="https://calculator.mrfinancialfreedom.com/"&gt;4% Rule Calculator&lt;/a&gt; by &lt;a href="https://mrfinancialfreedom.com/"&gt;Mr. Financial Freedom&lt;/a&gt;&lt;/p&gt;</textarea>
+        <div class="share-row" style="justify-content:flex-start">
+          <button type="button" class="btn" id="embedBtn">Copy embed code</button>
+          <span class="share-status" id="embedStatus" role="status"></span>
+        </div>
       </section>
 
       <section class="card" aria-labelledby="authorTitle">
@@ -432,8 +476,9 @@
 
   <script nonce="__CSP_NONCE__">
     'use strict';
-    // XSS notes: this script never uses innerHTML, eval or URL parameters.
-    // All output is written with textContent / numeric SVG attributes only.
+    // XSS notes: this script never uses innerHTML or eval. The only URL input is the
+    // #hash for shareable links: whitelisted keys, parsed as numbers, clamped to the
+    // input's min/max. All output is written with textContent / numeric attributes only.
 
     document.querySelectorAll('ins.adsbygoogle').forEach(function () {
       try { (window.adsbygoogle = window.adsbygoogle || []).push({}); } catch (e) {}
@@ -492,16 +537,6 @@
         $('multiple').textContent = multTxt + '×';
         $('withdraw').textContent = money(target * rate / 100);
 
-        // Comparison table 3% / 3.5% / 4% (cells are written with textContent only)
-        $('cmpMonthly').textContent = money(monthly);
-        document.querySelectorAll('#cmpBody tr').forEach(function (row) {
-          var r = parseFloat(row.getAttribute('data-rate'));
-          var cells = row.querySelectorAll('td');
-          cells[1].textContent = (100 / r).toFixed(1).replace(/\.0$/, '') + '×';
-          cells[2].firstElementChild.textContent = money(annual * 100 / r);
-          row.classList.toggle('is-current', Math.abs(r - rate) < 0.05);
-        });
-
         var diff = target - 1000000;
         $('million').textContent = monthly === 0 ? '' :
           diff < 0 ? 'Good news: that is ' + money(-diff) + ' less than 1 million. 🎉'
@@ -528,6 +563,24 @@
           $('years').textContent = yrs + (yrs === 1 ? ' year' : ' years') + (mos ? ' ' + mos + (mos === 1 ? ' month' : ' months') : '');
           $('yearsNote').textContent = 'Around ' + (thisYear + Math.ceil(y)) + '.';
         }
+
+        // Comparison 3% / 3.5% / 4%: amount needed + time to reach it (textContent only)
+        $('cmpMonthly').textContent = money(monthly);
+        var maxNeed = annual * 100 / 3;
+        document.querySelectorAll('#cmpBody tr').forEach(function (row) {
+          var r = parseFloat(row.getAttribute('data-rate'));
+          var need = annual * 100 / r;
+          var cells = row.querySelectorAll('td');
+          cells[0].lastElementChild.textContent = (100 / r).toFixed(1).replace(/\.0$/, '') + '× expenses';
+          cells[1].firstElementChild.textContent = money(need);
+          cells[1].querySelector('.cbar > span').style.width = (maxNeed > 0 ? need / maxNeed * 100 : 0) + '%';
+          var mths = need > 0 ? simulate(current, saving, ret, need).months : 0;
+          cells[2].textContent = mths === 0 ? 'now' : !isFinite(mths) ? '100+ yrs' :
+            (mths < 12 ? mths + ' mo' : (Math.round(mths / 12 * 10) / 10).toFixed(1).replace(/\.0$/, '') + ' yrs');
+          row.classList.toggle('is-current', Math.abs(r - rate) < 0.05);
+        });
+
+        writeHash();
 
         // Chart horizon: a few years past the goal, between 10 and 60 years.
         var horizon = isFinite(y) ? Math.min(60, Math.max(10, Math.ceil(y) + 5)) : 40;
@@ -634,26 +687,101 @@
           money(pts[n]) + ' in ' + (thisYear + n) + '. Happiness Number: ' + money(state.target) + '.';
       }
 
+      // ---------- Currency ----------
+      function setCurrency(c) {
+        if (!Object.prototype.hasOwnProperty.call(SYMBOLS, c)) return false;
+        cur = c;
+        document.querySelectorAll('.currency button').forEach(function (b) {
+          b.setAttribute('aria-pressed', b.getAttribute('data-cur') === c ? 'true' : 'false');
+        });
+        document.querySelectorAll('[data-sym]').forEach(function (s) { s.textContent = SYMBOLS[cur]; });
+        return true;
+      }
+
+      // ---------- Shareable links (#m=3000&r=4&c=50000&s=1000&y=5&cur=EUR) ----------
+      // The hash is never sent to the server; only these keys are accepted.
+      var HASH_KEYS = { m: 'monthly', r: 'rate', c: 'current', s: 'saving', y: 'ret' };
+      var suppressHash = true;   // don't write the default state into the URL on first load
+
+      function readHash() {
+        var h = window.location.hash.slice(1);
+        if (!h || h.length > 200) return;
+        h.split('&').forEach(function (pair) {
+          var kv = pair.split('=');
+          if (kv.length !== 2) return;
+          var key = kv[0], raw = kv[1];
+          if (key === 'cur') { setCurrency(raw.toUpperCase()); return; }
+          if (!Object.prototype.hasOwnProperty.call(HASH_KEYS, key)) return;
+          if (!/^\d{1,9}(\.\d{1,2})?$/.test(raw)) return;          // plain numbers only
+          var input = $(HASH_KEYS[key]);
+          var v = Math.min(Math.max(parseFloat(raw), parseFloat(input.min)), parseFloat(input.max));
+          input.value = String(v);
+        });
+      }
+      function buildHash() {
+        var parts = [];
+        Object.keys(HASH_KEYS).forEach(function (k) {
+          var v = parseFloat($(HASH_KEYS[k]).value);
+          if (isFinite(v)) parts.push(k + '=' + v);
+        });
+        parts.push('cur=' + cur);
+        return '#' + parts.join('&');
+      }
+      var hashTimer;
+      function writeHash() {
+        if (suppressHash) return;
+        clearTimeout(hashTimer);
+        hashTimer = setTimeout(function () {
+          try { history.replaceState(null, '', buildHash()); } catch (e) {}
+        }, 300);
+      }
+      function shareUrl() {
+        return window.location.origin + window.location.pathname + buildHash();
+      }
+
+      // ---------- Clipboard / share helpers ----------
+      function copyText(text, statusEl, okMsg) {
+        function done(ok) {
+          statusEl.textContent = ok ? okMsg : 'Copy failed – please copy it manually.';
+          setTimeout(function () { statusEl.textContent = ''; }, 4000);
+        }
+        if (navigator.clipboard && window.isSecureContext) {
+          navigator.clipboard.writeText(text).then(function () { done(true); }, function () { done(false); });
+        } else {
+          done(false);
+        }
+      }
+
+      $('shareBtn').addEventListener('click', function () {
+        var url = shareUrl();
+        var text = 'My Happiness Number is ' + $('target').textContent +
+          ' (4% rule). What is yours?';
+        if (navigator.share) {
+          navigator.share({ title: '4% Rule Calculator', text: text, url: url }).catch(function () {});
+        } else {
+          copyText(url, $('shareStatus'), 'Link copied – paste it anywhere.');
+        }
+      });
+      $('embedBtn').addEventListener('click', function () {
+        $('embedCode').select();
+        copyText($('embedCode').value, $('embedStatus'), 'Embed code copied.');
+      });
+
       // ---------- Wiring ----------
       document.querySelectorAll('.currency button').forEach(function (btn) {
         btn.addEventListener('click', function () {
-          var c = btn.getAttribute('data-cur');
-          if (!Object.prototype.hasOwnProperty.call(SYMBOLS, c)) return;
-          cur = c;
-          document.querySelectorAll('.currency button').forEach(function (b) {
-            b.setAttribute('aria-pressed', b === btn ? 'true' : 'false');
-          });
-          document.querySelectorAll('[data-sym]').forEach(function (s) { s.textContent = SYMBOLS[cur]; });
-          update();
+          if (setCurrency(btn.getAttribute('data-cur'))) { suppressHash = false; update(); }
         });
       });
       ['monthly', 'rate', 'current', 'saving', 'ret'].forEach(function (id) {
-        $(id).addEventListener('input', update);
+        $(id).addEventListener('input', function () { suppressHash = false; update(); });
       });
+      window.addEventListener('hashchange', function () { readHash(); update(); });
       var rz;
       window.addEventListener('resize', function () { clearTimeout(rz); rz = setTimeout(drawChart, 100); });
 
       $('yr').textContent = String(thisYear);
+      readHash();
       update();
     })();
   </script>
